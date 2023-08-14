@@ -1,8 +1,13 @@
 package Q7;
 
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import java.awt.*;
+
+// Import required Java libraries
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -13,24 +18,43 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import javax.imageio.ImageIO;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 
+// Main class that creates the application window
 public class SocialNetworkGraphApp {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            // create the main JFrame
             JFrame frame = new JFrame("Social Network Graph");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+// Create the main graph panel
             SocialNetworkGraphPanel graphPanel = new SocialNetworkGraphPanel();
             frame.add(graphPanel, BorderLayout.CENTER);
 
+// Create a toolbar with buttons for adding nodes and edges
             JToolBar toolBar = new JToolBar();
             JButton addNodeButton = new JButton("Add Node");
             JButton addEdgeButton = new JButton("Add Edge");
 
+            // add listeners to the buttons
             addNodeButton.addActionListener(e -> graphPanel.addNewNode());
             addEdgeButton.addActionListener(e -> graphPanel.addNewEdge());
 
@@ -38,6 +62,7 @@ public class SocialNetworkGraphApp {
             toolBar.add(addEdgeButton);
             frame.add(toolBar, BorderLayout.NORTH);
 
+            // create a search panel with search field and vutton
             JTextField searchField = new JTextField();
             searchField.setColumns(20);
             JButton searchButton = new JButton("Search");
@@ -55,6 +80,7 @@ public class SocialNetworkGraphApp {
 
             frame.add(searchPanel, BorderLayout.SOUTH);
 
+            // Set up the JFrame and make it visible
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setVisible(true);
             graphPanel.requestFocusInWindow();
@@ -62,21 +88,22 @@ public class SocialNetworkGraphApp {
     }
 }
 
+
 class SocialNetworkGraphPanel extends JPanel {
-    private static String directory= System.getProperty("user.dir")+ "/Q7/";
+    private static String directory = System.getProperty("user.dir") + "/Q7/";
     private List<Node> nodes = new ArrayList<>();
     private List<Edge> edges = new ArrayList<>();
     private Map<String, Node> nodeMap = new HashMap<>();
 
-    private Node selectedNode=null;
+    private Node selectedNode = null;
 
-    private Node selectedEdge=null;
+    private Node selectedEdge = null;
     private Node draggingNode = null;
     private Point mouseOffset = new Point();
 
     public SocialNetworkGraphPanel() {
-        readUserDataFromFile(directory+"users.txt");
-        readConnectionsFromFile(directory+"connection.txt");
+        readUserDataFromFile(directory + "users.txt");
+        readConnectionsFromFile(directory + "connection.txt");
         adjustNodePositions();
 
         addMouseListener(new MouseAdapter() {
@@ -88,8 +115,6 @@ class SocialNetworkGraphPanel extends JPanel {
             }
         });
 
-
-
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
@@ -98,7 +123,8 @@ class SocialNetworkGraphPanel extends JPanel {
                     removeSelectedEdge();
                     repaint();
                 }
-            }});
+            }
+        });
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -135,11 +161,10 @@ class SocialNetworkGraphPanel extends JPanel {
             }
         });
 
-
-
         setFocusable(true);
         requestFocus();
     }
+
     public void searchAndHighlightNode(String searchQuery) {
         deSelectAllNodes();
 
@@ -160,7 +185,8 @@ class SocialNetworkGraphPanel extends JPanel {
             if (followersStr != null && !followersStr.isEmpty()) {
                 try {
                     int followers = Integer.parseInt(followersStr);
-                    Node newNode = new Node(200, 200, userName, followers); // You can adjust the initial position as needed
+                    Node newNode = new Node(200, 200, userName, followers); // You can adjust the initial position as
+                                                                            // needed
                     JFileChooser fileChooser = new JFileChooser();
                     int returnValue = fileChooser.showOpenDialog(this);
                     if (returnValue == JFileChooser.APPROVE_OPTION) {
@@ -172,7 +198,8 @@ class SocialNetworkGraphPanel extends JPanel {
                     adjustNodePositions();
                     repaint();
                 } catch (NumberFormatException e) {
-                    JOptionPane.showMessageDialog(this, "Invalid number format for followers.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Invalid number format for followers.", "Error",
+                            JOptionPane.ERROR_MESSAGE);
                 }
             }
         }
@@ -194,10 +221,12 @@ class SocialNetworkGraphPanel extends JPanel {
                             edges.add(new Edge(node1, node2, "Strength: " + strength));
                             repaint();
                         } else {
-                            JOptionPane.showMessageDialog(this, "One or both user nodes not found.", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(this, "One or both user nodes not found.", "Error",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
                     } catch (NumberFormatException e) {
-                        JOptionPane.showMessageDialog(this, "Invalid number format for strength.", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, "Invalid number format for strength.", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -217,7 +246,7 @@ class SocialNetworkGraphPanel extends JPanel {
                     int followers = Integer.parseInt(parts[3]);
                     Node node = new Node(x, y, userName, followers);
 
-                    node.profileImagePath = System.getProperty("user.dir") +"/Q7/images/" + userName + ".jpg";
+                    node.profileImagePath = System.getProperty("user.dir") + "/Q7/images/" + userName + ".jpg";
                     nodes.add(node);
                     nodeMap.put(userName, node);
                 }
@@ -263,7 +292,7 @@ class SocialNetworkGraphPanel extends JPanel {
 
             // Load profile image
             try {
-                BufferedImage image = ImageIO.read(new File( node.profileImagePath));
+                BufferedImage image = ImageIO.read(new File(node.profileImagePath));
                 if (image != null) {
                     node.profileImage = image;
                 }
@@ -272,8 +301,6 @@ class SocialNetworkGraphPanel extends JPanel {
             }
         }
     }
-
-
 
     private void highlightSelectedEdge() {
         Point mousePosition = getMousePosition();
@@ -312,6 +339,7 @@ class SocialNetworkGraphPanel extends JPanel {
             }
         }
     }
+
     private void highlightSelectedNode() {
         Point mousePosition = getMousePosition();
         if (mousePosition != null) {
@@ -347,6 +375,7 @@ class SocialNetworkGraphPanel extends JPanel {
     }
 
     private final int GRID_SIZE = 20;
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -362,9 +391,6 @@ class SocialNetworkGraphPanel extends JPanel {
         }
     }
 
-
-
-
     private class Node {
         public String profileImagePath;
         private BufferedImage profileImage;
@@ -372,7 +398,7 @@ class SocialNetworkGraphPanel extends JPanel {
         String userName;
         int followers;
 
-        boolean isSelected=false  ;
+        boolean isSelected = false;
 
         Node(int x, int y, String userName, int followers) {
             this.x = x;
@@ -385,27 +411,27 @@ class SocialNetworkGraphPanel extends JPanel {
             return new Rectangle(x - 30, y - 30, 60, 60).contains(point);
         }
 
-         void draw(Graphics g) {
-             if (isSelected) {
-                 g.setColor(Color.blue); // Change color for selected node
-             } else {
-                 g.setColor(Color.lightGray);
-             }
-             g.fillOval(x - 30, y - 30, 60, 60);
-             g.setColor(Color.black);
-             g.drawString(userName + " (" + followers + " followers)", x - 30, y + 50);
-             if (profileImage != null) {
-                 int imageSize = 40;
-                 g.drawImage(profileImage, x - imageSize / 2, y - imageSize / 2, imageSize, imageSize, null);
-             }
-         }
+        void draw(Graphics g) {
+            if (isSelected) {
+                g.setColor(Color.blue); // Change color for selected node
+            } else {
+                g.setColor(Color.lightGray);
+            }
+            g.fillOval(x - 30, y - 30, 60, 60);
+            g.setColor(Color.black);
+            g.drawString(userName + " (" + followers + " followers)", x - 30, y + 50);
+            if (profileImage != null) {
+                int imageSize = 40;
+                g.drawImage(profileImage, x - imageSize / 2, y - imageSize / 2, imageSize, imageSize, null);
+            }
+        }
     }
 
     private class Edge {
         Node startNode, endNode;
         String connectionStrength;
 
-        boolean isSelected=false  ;
+        boolean isSelected = false;
 
         Edge(Node startNode, Node endNode, String connectionStrength) {
             this.startNode = startNode;
@@ -419,7 +445,7 @@ class SocialNetworkGraphPanel extends JPanel {
 
         void draw(Graphics g) {
             if (isSelected) {
-                g.setColor(Color.red);  // Change color for selected edge
+                g.setColor(Color.red); // Change color for selected edge
             } else {
                 g.setColor(Color.black);
             }
@@ -438,7 +464,6 @@ class SocialNetworkGraphPanel extends JPanel {
             g.drawLine(0, y, getWidth(), y);
         }
     }
-
 
     @Override
     public Dimension getPreferredSize() {
